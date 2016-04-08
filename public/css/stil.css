@@ -65,3 +65,8 @@ a {
 #pomoc {
   font: 10px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
+.slika{
+  width: 200px;
+  margin-left: 20px;
+}
