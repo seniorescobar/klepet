@@ -22,6 +22,7 @@ function procesirajVnosUporabnika(klepetApp, socket) {
     sporocilo = pocisti(sporocilo);
     sporocilo = dodajSmeske(sporocilo);
     sporocilo = dodajSlike(sporocilo);
+    sporocilo = dodajVidee(sporocilo);
     sporocilo = filtirirajVulgarneBesede(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo), false);
@@ -141,7 +142,7 @@ function dodajSmeske(vhodnoBesedilo) {
 }
 
 function dodajSlike(vhodnoBesedilo){
-  var izraz = /https?:\/\/.*?\.(jpg|png|gif)/g;
+  var izraz = /https?:\/\/\S*?\.(jpg|png|gif)/g;
   var slike = vhodnoBesedilo.match(izraz);
   
   if(slike !== null)
@@ -149,4 +150,17 @@ function dodajSlike(vhodnoBesedilo){
       vhodnoBesedilo += '<img class="slika" src="' + slike[i] + '"/>';
   
   return vhodnoBesedilo;
+}
+
+function dodajVidee(vhodnoBesedilo){
+  var novoVhodnoBesedilo = vhodnoBesedilo;
+  var izraz = /https:\/\/www\.youtube\.com\/watch\?v=(\S+)/g;
+  var videi = izraz.exec(vhodnoBesedilo);
+  
+  while (videi != null) {
+      novoVhodnoBesedilo += '<iframe class="video" src="https://www.youtube.com/embed/' + videi[1] + '" allowfullscreen></iframe>';
+      videi = izraz.exec(vhodnoBesedilo);
+  }
+  
+  return novoVhodnoBesedilo;
 }
