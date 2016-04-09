@@ -16,14 +16,11 @@ function procesirajVnosUporabnika(klepetApp, socket) {
   if (sporocilo.charAt(0) == '/') {
     sistemskoSporocilo = klepetApp.procesirajUkaz(sporocilo);
     if (sistemskoSporocilo) {
+      sistemskoSporocilo = obdelajBesedilo(sistemskoSporocilo);
       $('#sporocila').append(divElementHtmlTekst(sistemskoSporocilo));
     }
   } else {
-    sporocilo = pocisti(sporocilo);
-    sporocilo = dodajSmeske(sporocilo);
-    sporocilo = dodajSlike(sporocilo);
-    sporocilo = dodajVidee(sporocilo);
-    sporocilo = filtirirajVulgarneBesede(sporocilo);
+    sporocilo = obdelajBesedilo(sporocilo);
     klepetApp.posljiSporocilo(trenutniKanal, sporocilo);
     $('#sporocila').append(divElementEnostavniTekst(sporocilo), false);
     $('#sporocila').scrollTop($('#sporocila').prop('scrollHeight'));
@@ -74,6 +71,8 @@ $(document).ready(function() {
   });
 
   socket.on('sporocilo', function (sporocilo) {
+    if(sporocilo.besedilo.indexOf(' (zasebno):') > 0 && sporocilo.besedilo.indexOf(':') > sporocilo.besedilo.indexOf(' (zasebno):'))
+      sporocilo.besedilo = obdelajBesedilo(sporocilo.besedilo);
     var novElement = divElementEnostavniTekst(sporocilo.besedilo, false);
     $('#sporocila').append(novElement);
   });
@@ -118,10 +117,10 @@ $(document).ready(function() {
     $('#seznam-uporabnikov').empty();
     for (var i=0; i < uporabniki.length; i++) {
       $('#seznam-uporabnikov').append(
-        divElementEnostavniTekst(uporabniki[i])
+        divElementEnostavniTekst(uporabniki[i], true)
         .click(function(){
           $('#poslji-sporocilo').val('/zasebno ' + '"' + $(this).text() +  '" ').focus();
-        }, true)
+        })
       );
     }
   });
@@ -183,4 +182,14 @@ function dodajVidee(vhodnoBesedilo){
   }
   
   return novoVhodnoBesedilo;
+}
+
+function obdelajBesedilo(vhodnoBesedilo){
+  vhodnoBesedilo = pocisti(vhodnoBesedilo);
+  vhodnoBesedilo = dodajSlike(vhodnoBesedilo);
+  vhodnoBesedilo = dodajVidee(vhodnoBesedilo);
+  vhodnoBesedilo = dodajSmeske(vhodnoBesedilo);
+  vhodnoBesedilo = filtirirajVulgarneBesede(vhodnoBesedilo);
+  
+  return vhodnoBesedilo;
 }
